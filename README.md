@@ -1,70 +1,105 @@
-# Getting Started with Create React App
+# BloxMate
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+BloxMate is a comprehensive employee assistance platform that integrates multiple workplace tools and AI-powered assistants to enhance productivity and streamline onboarding processes.
 
-## Available Scripts
+## 🌟 Features
 
-In the project directory, you can run:
+- **Intelligent Chatbot**: AI-powered assistant for workplace questions
+- **LinkedIn Learning Integration**: Search and get enhanced descriptions of relevant LinkedIn Learning courses
+- **Onboarding Assistant**: Streamlined process for new employees
+- **Workplace Communications Helper**: Assist with drafting professional communications
+- **Organization Chart Explorer**: Navigate company structure with natural language
 
-### `npm start`
+## 🏗️ Project Structure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+BloxMate/
+├── public/              # Static files
+├── src/                 # React frontend code
+│   ├── components/      # React components
+│   └── images/          # UI assets
+└── server/              # Python backend
+    ├── api.py           # API endpoints
+    ├── app.py           # Main application entry point
+    ├── linkedin.py      # LinkedIn Learning course finder
+    ├── onboarding.py    # Onboarding assistance module
+    ├── org_chart_bot.py # Organization chart explorer
+    └── more...          # Additional backend modules
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🚀 Getting Started
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js (v16+)
+- Python (v3.10+)
+- npm or yarn
 
-### `npm run build`
+### Frontend Setup
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+# Install dependencies
+npm install
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Start the development server
+npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The application will be available at http://localhost:3000.
 
-### `npm run eject`
+### Backend Setup
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+# Navigate to the server directory
+cd server
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Install Python dependencies
+pip install -r requirements.txt
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# Start the Flask server
+python app.py
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The API server will run on http://localhost:5000.
 
-## Learn More
+## 🔧 Technologies Used
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Frontend
+- React
+- Material UI
+- Chakra UI
+- React Router
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Backend
+- Python
+- Flask
+- Azure OpenAI
+- SerpAPI (for LinkedIn course search)
 
-### Code Splitting
+## 📝 API Keys Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Some backend features require API keys to function:
 
-### Analyzing the Bundle Size
+1. Azure OpenAI API credentials
+2. SerpAPI key
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Add your keys to the appropriate configuration files or use environment variables.
 
-### Making a Progressive Web App
+## 📚 Main Features Explained
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### LinkedIn Learning Course Finder
+Uses SerpAPI to search for relevant LinkedIn Learning courses based on user queries and enhances the results with AI-generated descriptions.
 
-### Advanced Configuration
+### Onboarding Assistant
+Helps new employees navigate company resources, policies, and procedures through an interactive question-answering interface.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Organization Chart Explorer
+Allows employees to navigate the company organization structure through natural language queries.
 
-### Deployment
+## 🤝 Contributing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Contributions, issues, and feature requests are welcome!
 
-### `npm run build` fails to minify
+## 📄 License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+[Your license information here]
