@@ -98,8 +98,5 @@ Allows employees to navigate the company organization structure through natural 
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome!
+Project by Saloni P and Vidhi V for Infoblox HackFest'25
 
-## 📄 License
-
-[Your license information here]
