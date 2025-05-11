@@ -74,28 +74,16 @@ const infobloxTheme = createTheme({
 // Updated list of chatbot capabilities with your requested topics
 const chatbotCapabilities = [
   { 
-    id: 'products', 
-    title: 'Products', 
-    description: 'Information about Infoblox products, features, and technical specifications', 
+    id: 'products_resources', 
+    title: 'Products & Resources', 
+    description: 'Information from Infoblox documentation archives', 
     icon: <DnsIcon sx={{ color: '#00FF85' }} />
-  },
-  { 
-    id: 'resources', 
-    title: 'Resources', 
-    description: 'Access to company documents, guides, and reference materials', 
-    icon: <FolderSharedIcon sx={{ color: '#cccc00' }} />
   },
   { 
     id: 'organization', 
     title: 'Organization Chart', 
     description: 'Find people and their roles to reach out for specific needs', 
-    icon: <PeopleIcon sx={{ color: '#00FF85' }} />
-  },
-  { 
-    id: 'access', 
-    title: 'Access & Setup', 
-    description: 'Help with system access, permissions, and technical setup', 
-    icon: <AccountCircleIcon sx={{ color: '#cccc00' }} />
+    icon: <PeopleIcon sx={{ color: '#cccc00' }} />
   },
   { 
     id: 'onboarding', 
@@ -109,11 +97,18 @@ const chatbotCapabilities = [
     description: 'Guidance for difficult conversations with managers and colleagues', 
     icon: <MessageIcon sx={{ color: '#cccc00' }} />
   },
+  { 
+    id: 'access', 
+    title: 'Access & Setup', 
+    description: 'Help with system access, permissions, and technical setup', 
+    icon: <AccountCircleIcon sx={{ color: '#00FF85' }} />
+  },
 ];
 
 export default function ChatBot() {
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate(); // Hook for navigation
 
   // Initialize with welcome message
@@ -139,41 +134,98 @@ export default function ChatBot() {
     navigate("/home"); // Redirect to HomePage
   };
 
-  // Fix for handleChatSubmit function
-  const handleChatSubmit = (e) => {
+  // Updated handleChatSubmit function to call the backend API
+  const handleChatSubmit = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
 
     // Add user message to chat
     const newUserMessage = { sender: 'user', text: chatInput };
     setChatMessages([...chatMessages, newUserMessage]);
-
-    // Define the query variable
-    const query = chatInput.toLowerCase();
-    setChatInput("");
-
-    // Simulate bot response
-    setTimeout(() => {
-      let response = "I'm not sure I understand. Can you try asking something about our products, learning resources, or company policies?";
+    
+    // Show typing indicator
+    setIsLoading(true);
+    
+    try {
+      console.log("Attempting to connect to backend API at http://localhost:5000/api/chat");
       
-      if (query.includes("product") || query.includes("service") || query.includes("infoblox")) {
-        response = "Infoblox offers various products including BloxOne DDI, BloxOne Threat Defense, NIOS, and NetMRI. Which one would you like to learn more about?";
-      } 
-      else if (query.includes("course") || query.includes("learn") || query.includes("training")) {
-        response = "We have many learning resources available. You can check out courses on LinkedIn Learning, our internal training portal, or ask about specific topics you want to learn.";
+      // Call the backend API
+      const response = await fetch('http://localhost:5000/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: chatInput }),
+      });
+      
+      console.log("Backend response status:", response.status);
+      
+      const data = await response.json();
+      console.log("Backend response data:", data);
+      
+      if (data.success) {
+        // Process the response message to handle formatting
+        const processedMessage = processAgentResponse(data.message);
+        setChatMessages(prev => [...prev, { sender: 'bot', text: processedMessage }]);
+      } else {
+        setChatMessages(prev => [...prev, { 
+          sender: 'bot', 
+          text: `Error from backend: ${data.error || "Unknown error occurred"}`
+        }]);
       }
-      else if (query.includes("policy") || query.includes("policies") || query.includes("rules")) {
-        response = "Our company policies cover areas such as code of conduct, remote work, travel, and security. Which policy area are you interested in?";
-      }
-      else if (query.includes("resource") || query.includes("document") || query.includes("find")) {
-        response = "You can access company resources through our intranet portal, the resource dashboard, or I can help you find specific documents. What are you looking for?";
-      }
-      else if (query.includes("career") || query.includes("growth") || query.includes("promotion")) {
-        response = "For career development, you can explore internal job postings, mentorship programs, or speak with your manager about growth opportunities.";
-      }
-
-      setChatMessages(prev => [...prev, { sender: 'bot', text: response }]);
-    }, 1000);
+    } catch (error) {
+      console.error('Error communicating with the agent:', error);
+      setChatMessages(prev => [...prev, { 
+        sender: 'bot', 
+        text: `I'm having trouble connecting to my backend services (${error.message}). Please make sure the Flask server is running at http://localhost:5000.`
+      }]);
+    } finally {
+      setIsLoading(false);
+      setChatInput("");
+    }
+  };
+  
+  // Function to process the agent response and format it for display
+  const processAgentResponse = (response) => {
+    // Remove routing headers that might be confusing in the UI
+    let processedResponse = response
+      .replace(/🤔 Analyzing your question\.\.\./, '')
+      .replace(/📚 Routing to Knowledge Base Agent\.\.\./, '')
+      .replace(/🎓 Routing to Learning Assistant\.\.\./, '')
+      .replace(/👥 Routing to Org Chart Assistant\.\.\./, '')
+      .replace(/🤝 Routing to Workplace Communication Assistant\.\.\./, '')
+      .replace(/🚀 Routing to Onboarding Assistant\.\.\./, '')
+      .trim();
+    
+    // Add formatting for headers
+    processedResponse = processedResponse
+      // Format section headers (lines followed by ':' or ending with ':')
+      .replace(/^([A-Z][^:]+):$/gm, '<strong style="color: #00FF85">$1:</strong>')
+      .replace(/^([A-Z][^:]+:\s)/gm, '<strong style="color: #00FF85">$1</strong>')
+      
+      // Highlight person names and titles
+      .replace(/\b([A-Z][a-z]+ [A-Z][a-z]+)( - )([^,]+)/g, '<strong>$1</strong>$2<em>$3</em>')
+      
+      // Format any bullet points with better spacing
+      .replace(/\n[\s]*[-•*][\s]+([^\n]+)/g, '<br/>• $1')
+      
+      // Format numbered lists
+      .replace(/\n[\s]*(\d+)\.[\s]+([^\n]+)/g, '<br/>$1. $2')
+      
+      // Add proper paragraph spacing
+      .replace(/\n\n/g, '<br/><br/>')
+      .replace(/\n/g, '<br/>')
+      
+      // Highlight important words
+      .replace(/\*\*([^*]+)\*\*/g, '<strong style="color: #cccc00">$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      
+      // Highlight key terms, dates, and URLs
+      .replace(/\b(https?:\/\/[^\s]+)\b/g, '<a href="$1" target="_blank" style="color: #00FF85">$1</a>')
+      .replace(/\b(\d{1,2}\/\d{1,2}\/\d{2,4})\b/g, '<span style="color: #cccc00">$1</span>')
+      .replace(/\b(FY\d{2})\b/g, '<span style="color: #cccc00">$1</span>');
+    
+    return processedResponse;
   };
 
   // Updated box style for capability rectangles with reduced height
@@ -255,7 +307,7 @@ export default function ChatBot() {
         <Box sx={{ p: 4, flex: 1 }}>
           <Grid container spacing={4} sx={{ flexWrap: 'nowrap' }}>
             {/* Left Column - Button and Info Boxes */}
-            <Grid item xs={4} sx={{ flexShrink: 0 }}>
+            <Grid md={4} sx={{ flexShrink: 0 }}>
               {/* LinkedIn Learning Button */}
               <Button
                 variant="contained"
@@ -335,7 +387,7 @@ export default function ChatBot() {
             </Grid>
 
             {/* Right Column - Chatbot Interface */}
-            <Grid item xs={8} sx={{ flexGrow: 1 }}>
+            <Grid md={8} sx={{ flexGrow: 1 }}>
               <Paper 
                 elevation={3} 
                 sx={{ 
@@ -383,10 +435,73 @@ export default function ChatBot() {
                       }}
                     >
                       <Typography variant="body1" color="text.primary">
-                        {message.text}
+                        {message.sender === 'bot' ? (
+                          <div dangerouslySetInnerHTML={{ __html: message.text }} />
+                        ) : (
+                          message.text
+                        )}
                       </Typography>
                     </Box>
                   ))}
+                  
+                  {/* Loading indicator */}
+                  {isLoading && (
+                    <Box 
+                      sx={{ 
+                        alignSelf: 'flex-start',
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: 'rgba(204, 204, 0, 0.1)',
+                        border: '1px solid rgba(204, 204, 0, 0.3)',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Typography variant="body1" color="text.primary" sx={{ mr: 1 }}>
+                        BloxMate is thinking
+                      </Typography>
+                      <Box sx={{ display: 'flex' }}>
+                        <Box 
+                          sx={{ 
+                            width: '8px', 
+                            height: '8px', 
+                            borderRadius: '50%', 
+                            bgcolor: '#00FF85',
+                            animation: 'pulse 1s infinite',
+                            animationDelay: '0s',
+                            mx: 0.5,
+                            '@keyframes pulse': {
+                              '0%': { opacity: 0.3 },
+                              '50%': { opacity: 1 },
+                              '100%': { opacity: 0.3 },
+                            }
+                          }} 
+                        />
+                        <Box 
+                          sx={{ 
+                            width: '8px', 
+                            height: '8px', 
+                            borderRadius: '50%', 
+                            bgcolor: '#00FF85',
+                            animation: 'pulse 1s infinite',
+                            animationDelay: '0.2s',
+                            mx: 0.5
+                          }} 
+                        />
+                        <Box 
+                          sx={{ 
+                            width: '8px', 
+                            height: '8px', 
+                            borderRadius: '50%', 
+                            bgcolor: '#00FF85',
+                            animation: 'pulse 1s infinite',
+                            animationDelay: '0.4s',
+                            mx: 0.5
+                          }} 
+                        />
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
 
                 {/* Chat Input */}
@@ -398,17 +513,27 @@ export default function ChatBot() {
                       variant="outlined"
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
+                      disabled={isLoading}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && isLoading) {
+                          e.preventDefault();
+                        }
+                      }}
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           '& fieldset': { borderColor: 'rgba(0, 255, 133, 0.5)' },
                           '&:hover fieldset': { borderColor: '#00FF85' },
                           '&.Mui-focused fieldset': { borderColor: '#00FF85' },
+                          '&.Mui-disabled': { 
+                            opacity: 0.7,
+                            '& fieldset': { borderColor: 'rgba(204, 204, 0, 0.3)' }
+                          }
                         },
                       }}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
-                            <IconButton type="submit" color="primary">
+                            <IconButton type="submit" color="primary" disabled={isLoading}>
                               <SendIcon />
                             </IconButton>
                           </InputAdornment>

@@ -130,7 +130,7 @@ export default function HomePage() {
             Welcome to BloxMate
           </Typography>
           <Typography variant="h5" sx={{ color: "#00FF85", mb: 4 }}>
-            Your Corporate Journey Assistant
+            Your Digital Bloxer Friend
           </Typography>
           <Typography variant="body1" sx={{ color: "text.secondary", maxWidth: "600px", mb: 4 }}>
             BloxMate is here to answer all your questions, assist with onboarding, and guide you throughout your corporate journey. Simplify your work life with BloxMate.
